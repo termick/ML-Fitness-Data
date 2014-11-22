@@ -1,12 +1,6 @@
 ---
-title: "Fitness Data"
-author: "CK"
-date: "November 18, 2014"
-output:
-html_document:
-fig_caption: yes
+output: pdf_document
 ---
-
 ### Apply Machine Learning Alogrithms for Establish Fitness Exercise Corectness
 
 The goal of this project is to predict the manner in which they did the exercise. To do this we are going to analze the data fro from this source: http://groupware.les.inf.puc-rio.br/har.

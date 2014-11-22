@@ -2,7 +2,9 @@
 title: "Fitness Data"
 author: "CK"
 date: "November 18, 2014"
-output: html_document
+output:
+html_document:
+fig_caption: yes
 ---
 
 ### Apply Machine Learning Alogrithms for Establish Fitness Exercise Corectness

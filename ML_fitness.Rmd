@@ -1,0 +1,123 @@
+---
+title: "Fitness Data"
+author: "CK"
+date: "November 18, 2014"
+output: html_document
+---
+
+### Apply Machine Learning Alogrithms for Establish Fitness Exercise Corectness
+
+The goal of this project is to predict the manner in which they did the exercise. To do this we are going to analze the data fro from this source: http://groupware.les.inf.puc-rio.br/har.
+
+  
+Loading  the required  R Libraries.
+
+```{r}
+setwd("~/Documents/R/ML_fitness")
+library(caret)
+library(ggplot2)
+library(rpart.plot)
+library(corrplot)
+```
+
+Two datasets downloaed from the internet and then two local files created. 
+
+```{r}
+#file sdownload
+download.file("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv",
+destfile="training.csv")
+download.file("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv",
+destfile="test.csv")
+
+#load data 
+training<-read.csv("training.csv")
+test<-read.csv("test.csv")
+head(training)
+
+```
+
+With data cleaning process we choose the colomuns that we are going to use.
+
+```{r}
+include.col <- c("pitch_belt", "yaw_belt", "total_accel_belt", "gyros_belt_x", 
+    "gyros_belt_y", "gyros_belt_z", "accel_belt_x", "accel_belt_y", "accel_belt_z", 
+    "magnet_belt_x", "magnet_belt_y", "magnet_belt_z", "roll_arm", "pitch_arm", 
+    "yaw_arm", "total_accel_arm", "gyros_arm_x", "gyros_arm_y", "gyros_arm_z", 
+    "accel_arm_x", "accel_arm_y", "accel_arm_z", "magnet_arm_x", "magnet_arm_y", 
+    "magnet_arm_z", "roll_dumbbell", "pitch_dumbbell", "yaw_dumbbell", "total_accel_dumbbell", 
+    "gyros_dumbbell_x", "gyros_dumbbell_y", "gyros_dumbbell_z", "accel_dumbbell_x", 
+    "accel_dumbbell_y", "accel_dumbbell_z", "magnet_dumbbell_x", "magnet_dumbbell_y", 
+    "magnet_dumbbell_z", "roll_forearm", "pitch_forearm", "yaw_forearm", "total_accel_forearm", 
+    "gyros_forearm_x", "gyros_forearm_y", "gyros_forearm_z", "accel_forearm_x", 
+    "accel_forearm_y", "accel_forearm_z", "magnet_forearm_x", "magnet_forearm_y", 
+    "magnet_forearm_z")
+test1 <- test[, include.col]
+include.col<- c(include.col, "classe")
+training1 <- training[, include.col]
+dim(training)
+dim(training1)
+```
+
+
+#Exploratory analysis
+
+Two figures produced for the data exploratory analysis. First a histogram to count the frequency of the classe variable and second a graph which shows that how different columns are correlated to each other.
+
+```{r}
+qplot(training$classe, ylab="Frequency")
+
+
+corr <- cor(training1[ ,-52])
+corrplot(corr, order="FPC", type="lower", method="color", tl.cex=0.8, tl.col="black")
+
+```
+
+#Prediction Model
+
+We use the Randon Forest Algorithm for the following reasons. the decisions tree algorithms adavatages are:
+Simple to understand and interpret. People are able to understand decision tree models after a brief explanation.
+-Requires little data preparation. 
+-Able to handle both numerical and categorical data. 
+-Uses a white box model
+-Possible to validate a model using statistical tests. That makes it possible to account for the reliability of the model.
+-Robust. Performs well even if its assumptions are somewhat violated by the true model from which the data were generated.
+
+
+
+```{r}
+#Random Forest Algorithm
+library(randomForest)
+model1<-randomForest(classe ~ ., data=training1, method="class")
+predict1<-predict(model1, training1, type="class")
+print(confusionMatrix(predict1, training1$classe))
+
+
+```
+
+#Testing
+
+```{r}
+testing_res<-predict(model1,test1)
+testing_res
+
+```
+
+
+#Write Files
+
+```{r]}
+pml_write_files = function(x){
+        n=length(x)
+        for (i in 1:n){
+          filename=paste0("problem_id_",i,".txt")
+          write.table(x[i], file =filename, quote=FALSE, row.names=FALSE,col.names=FALSE)
+        }
+}
+pml_write_files(testing_res)
+
+```
+
+
+
+
+
